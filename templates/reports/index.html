@@ -6,12 +6,12 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">SQL Analytics & Reports Dashboard</h1>
-        <p class="page-subtitle">Demonstrate relational queries, aggregate functions, GROUP BY, joins, and subqueries on normalized schema</p>
+        <p class="page-subtitle">Demonstrate relational database queries: aggregate functions, GROUP BY, joins, and subqueries on normalized schema</p>
     </div>
 </div>
 
 <!-- Report Navigation Tabs / Section Anchors -->
-<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem;">
+<div style="display: flex; gap: 0.65rem; flex-wrap: wrap; margin-bottom: 2rem;">
     <a href="#report-states" class="btn btn-secondary btn-sm">📍 State Distribution</a>
     <a href="#report-categories" class="btn btn-secondary btn-sm">🏷️ Category Counts</a>
     <a href="#report-cities" class="btn btn-secondary btn-sm">📊 City Budget Averages</a>
@@ -21,7 +21,7 @@
 
 <!-- Report 1: State/UT Distribution -->
 <div id="report-states" class="detail-section" style="margin-bottom: 2.25rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
             <h2 class="section-heading" style="margin-bottom: 0.35rem;">1. Destinations Grouped by State / UT</h2>
             <p class="report-meta-tag">
@@ -54,7 +54,7 @@
 
 <!-- Report 2: Category Distribution -->
 <div id="report-categories" class="detail-section" style="margin-bottom: 2.25rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
             <h2 class="section-heading" style="margin-bottom: 0.35rem;">2. Destination Counts by Category</h2>
             <p class="report-meta-tag">
@@ -76,7 +76,7 @@
             <tbody>
                 {% for row in category_counts %}
                     <tr>
-                        <td><span class="badge badge-default">{{ row.category }}</span></td>
+                        <td><span class="badge {{ row.category | category_badge }}">{{ row.category }}</span></td>
                         <td class="num-col" style="font-weight: 700; color: var(--color-primary);">{{ row.cat_count }}</td>
                     </tr>
                 {% endfor %}
@@ -87,7 +87,7 @@
 
 <!-- Report 3: Starting City Budget Averages -->
 <div id="report-cities" class="detail-section" style="margin-bottom: 2.25rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
             <h2 class="section-heading" style="margin-bottom: 0.35rem;">3. Budget Statistics by Starting Departure City</h2>
             <p class="report-meta-tag">
@@ -128,11 +128,11 @@
 
 <!-- Report 4: Subquery Demonstration (Above-Average Budget Destinations) -->
 <div id="report-subquery" class="detail-section" style="margin-bottom: 2.25rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
             <h2 class="section-heading" style="margin-bottom: 0.35rem;">4. Destinations with Above-Average Budget from New Delhi</h2>
             <p class="report-meta-tag">
-                Highlights journeys from New Delhi whose total estimated budget exceeds New Delhi's overall average across all destinations. Displaying the top 10 highest-cost itineraries.
+                Highlights journeys from New Delhi whose total estimated budget exceeds New Delhi's overall average across all destinations. Displaying top 10 highest-cost itineraries.
                 <br>SQL Concepts: <code>WHERE estimated_total_budget_inr > (SELECT AVG(...) ...)</code>, <code>INNER JOIN</code>, <code>LIMIT 10</code>
             </p>
         </div>
@@ -165,7 +165,7 @@
 
 <!-- Report 5: Multi-table Joined Report -->
 <div id="report-joined" class="detail-section" style="margin-bottom: 2.25rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
         <div>
             <h2 class="section-heading" style="margin-bottom: 0.35rem;">5. Combined Destination, Visiting Logistics & Budget Highlights</h2>
             <p class="report-meta-tag">
@@ -192,7 +192,9 @@
                     <tr>
                         <td>
                             <strong>{{ row.place_name }}</strong>
-                            <div style="font-size: 0.78rem; color: var(--text-muted);">{{ row.category }} &bull; {{ row.state_ut }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">
+                                <span class="badge {{ row.category | category_badge }}" style="font-size: 0.72rem; padding: 0.1rem 0.35rem;">{{ row.category }}</span> &bull; {{ row.state_ut }}
+                            </div>
                         </td>
                         <td>{{ row.best_time_to_visit }}</td>
                         <td>{{ row.local_languages }}</td>

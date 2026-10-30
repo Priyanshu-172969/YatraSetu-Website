@@ -92,6 +92,27 @@ body {
   letter-spacing: -0.02em;
 }
 
+.brand-icon {
+  display: block;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+}
+
+.brand-name {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.brand-yatra {
+  color: #ffffff;
+}
+
+.brand-setu {
+  color: #ec6b0e;
+}
+
 .brand-badge {
   background-color: var(--color-accent);
   color: #ffffff;
@@ -196,14 +217,21 @@ body {
 
 /* Hero Section (Home) */
 .hero-card {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+  background:
+    linear-gradient(135deg, rgba(15, 29, 50, 0.93) 0%, rgba(26, 43, 73, 0.88) 100%),
+    url('../images/destinations/01-taj-mahal.jpg') center/cover no-repeat;
   color: #ffffff;
   border-radius: var(--radius-lg);
-  padding: 3rem 2.5rem;
+  padding: 3.5rem 2.75rem;
   margin-bottom: 2.5rem;
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-content {
+  max-width: 840px;
 }
 
 .hero-tag {
@@ -418,9 +446,40 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  color: var(--text-light);
-  font-size: 2.5rem;
+  background: linear-gradient(135deg, #1a2b49 0%, #2c426b 100%);
+  color: #ffffff;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  text-decoration: none;
+  gap: 0.35rem;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.card:hover .card-media-fallback {
+  opacity: 0.95;
+}
+
+.card-media-fallback .fallback-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.card-media-fallback .fallback-place {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-media-fallback .fallback-tag {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 /* Destination Detail Hero Image */
@@ -773,6 +832,25 @@ body {
   gap: 0.75rem;
 }
 
+/* Pulsing highlight for Add Stop section */
+.highlight-section {
+  animation: pulseHighlight 1.8s ease-out;
+}
+
+@keyframes pulseHighlight {
+  0% {
+    box-shadow: 0 0 0 4px rgba(217, 83, 30, 0.7);
+    transform: scale(1.01);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(217, 83, 30, 0.3);
+  }
+  100% {
+    box-shadow: var(--shadow-sm);
+    transform: scale(1);
+  }
+}
+
 /* Footer */
 .footer {
   background-color: var(--color-primary-dark);
@@ -793,10 +871,42 @@ body {
   gap: 1.5rem;
 }
 
+.footer-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.footer-logo {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 .footer-copy {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+.footer-title {
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.footer-tagline {
+  color: #fed7aa;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.footer-subtext {
+  color: #94a3b8;
+  font-size: 0.82rem;
 }
 
 .footer-links {
@@ -858,8 +968,26 @@ body {
   .filter-form {
     grid-template-columns: 1fr;
   }
+  .hero-card {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+  }
+  .hero-content {
+    margin: 0 auto;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
   .hero-title {
     font-size: 1.85rem;
+  }
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-brand-wrap {
+    flex-direction: column;
+    text-align: center;
   }
   .nav-container {
     flex-direction: column;
@@ -869,5 +997,21 @@ body {
   .nav-links {
     flex-wrap: wrap;
     justify-content: center;
+  }
+}
+
+/* Accessibility Focus States */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -30,10 +30,10 @@
 
 {% if selected_dest %}
     <!-- Destination Context Header -->
-    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem;">
+    <div style="background-color: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
             <div>
-                <span class="badge badge-default" style="margin-bottom: 0.5rem;">{{ selected_dest.category }}</span>
+                <span class="badge {{ selected_dest.category | category_badge }}" style="margin-bottom: 0.5rem; display: inline-block;">{{ selected_dest.category }}</span>
                 <h2 style="color: var(--color-primary); font-size: 1.5rem; font-weight: 700;">{{ selected_dest.place_name }}</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem;">📍 {{ selected_dest | format_location }}</p>
             </div>
@@ -45,20 +45,36 @@
 
     <!-- Side-by-Side Starting City Comparison Cards -->
     {% if estimates %}
-        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary); margin-bottom: 1.25rem;">
-            Available Origin Hub Estimates ({{ estimates|length }} Routes)
-        </h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary); margin: 0;">
+                Available Origin Hub Estimates ({{ estimates|length }} Routes)
+            </h3>
+            <span class="badge badge-default">Indicative Prototype Budgets</span>
+        </div>
+
+        <!-- Duration & Transit Methodology Clarification -->
+        <div style="background-color: #f8fafc; border: 1px solid var(--border-light); border-left: 4px solid var(--color-accent); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.5rem; font-size: 0.86rem; color: var(--text-muted); line-height: 1.55;">
+            <strong style="color: var(--color-primary); display: block; margin-bottom: 0.2rem;">💡 Understanding Trip Duration & Transport Assumptions:</strong>
+            <strong>Total Trip Duration</strong> represents the full planned travel window (including travel days and sightseeing from the origin hub).
+            <strong>Accommodation Nights</strong> represents destination lodging nights.
+            <strong>Long-Distance Transit</strong> covers the full round-trip journey from the starting city; return fares are already included in the estimated total budget.
+        </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
             {% for est in estimates %}
                 <div class="card" style="border-top: 4px solid var(--color-accent);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <h4 style="font-size: 1.2rem; font-weight: 700; color: var(--color-primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                        <h4 style="font-size: 1.2rem; font-weight: 700; color: var(--color-primary); margin-top: 0.2rem;">
                             🧭 {{ est.starting_city }}
                         </h4>
-                        <span class="badge" style="background-color: #eff6ff; color: #1e40af;">
-                            {{ est.trip_duration_days }} Days / {{ est.accommodation_nights }} Nights
-                        </span>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+                            <span class="badge" style="background-color: #eff6ff; color: #1e40af; font-weight: 600;">
+                                🗓️ {{ est.trip_duration_days }} Day{% if est.trip_duration_days != 1 %}s{% endif %} Total Trip
+                            </span>
+                            <span class="badge" style="background-color: var(--bg-muted); color: var(--text-muted); font-size: 0.74rem; font-weight: 600;">
+                                🛏️ {% if est.accommodation_nights == 0 %}Day Excursion (0 Nights){% elif est.accommodation_nights == 1 %}1 Night Stay{% else %}{{ est.accommodation_nights }} Nights Stay{% endif %}
+                            </span>
+                        </div>
                     </div>
 
                     <div style="background-color: var(--bg-muted); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem; text-align: center;">
@@ -68,15 +84,15 @@
                         <strong style="font-size: 1.85rem; color: var(--color-primary); font-weight: 800;">
                             ₹{{ "{:,.2f}".format(est.estimated_total_budget_inr) }}
                         </strong>
-                        <span style="display: block; font-size: 0.75rem; color: var(--text-light); margin-top: 0.2rem;">
-                            Indicative prototype estimate
+                        <span style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                            Indicative academic prototype estimate
                         </span>
                     </div>
 
-                    <!-- Itemized Breakdown -->
+                    <!-- Itemized Cost Breakdown -->
                     <div class="info-list" style="font-size: 0.88rem; margin-bottom: 1rem;">
                         <div class="info-row">
-                            <span class="info-label">Long-Distance Transit</span>
+                            <span class="info-label">Long-Distance Transit (Round-Trip)</span>
                             <span class="info-val">₹{{ "{:,.2f}".format(est.long_distance_round_trip_cost_inr) }}</span>
                         </div>
                         <div class="info-row">
@@ -109,39 +125,58 @@
                         </div>
                     </div>
 
-                    <!-- Methodology & Source Details -->
-                    <div style="border-top: 1px solid var(--border-light); padding-top: 0.75rem; font-size: 0.82rem; color: var(--text-muted);">
+                    <!-- Transit Assumptions & Key Metadata -->
+                    <div style="border-top: 1px solid var(--border-light); padding-top: 0.75rem; font-size: 0.84rem; color: var(--text-muted); margin-bottom: 0.75rem;">
                         <p style="margin-bottom: 0.35rem;">
-                            <strong>Mode & Class:</strong> {{ est.transport_mode }} ({{ est.transport_class }})
+                            <strong>Transport Mode:</strong> {{ est.transport_mode }} ({{ est.transport_class }})
                         </p>
                         <p style="margin-bottom: 0.35rem;">
-                            <strong>Travel Period:</strong> {{ est.target_travel_period }}
-                        </p>
-                        <p style="margin-bottom: 0.35rem;">
-                            <strong>Methodology:</strong> {{ est.calculation_methodology }}
-                        </p>
-                        <p style="margin-bottom: 0.35rem;">
-                            <strong>Confidence:</strong> {{ est.confidence_level }} (Checked: {{ est.date_checked }})
+                            <strong>Confidence:</strong> {{ est.confidence_level }} <small>(Checked: {{ est.date_checked }})</small>
                         </p>
                         {% if est.limitations %}
-                            <p style="color: var(--color-warning); font-size: 0.78rem;">
+                            <p style="color: var(--color-warning); font-size: 0.8rem; margin-top: 0.35rem; line-height: 1.4;">
                                 ⚠️ <strong>Note:</strong> {{ est.limitations }}
                             </p>
                         {% endif %}
                     </div>
+
+                    <!-- Collapsible Secondary Methodology & Research Details -->
+                    <details style="font-size: 0.82rem; color: var(--text-muted); border-top: 1px dashed var(--border-light); padding-top: 0.5rem; cursor: pointer;">
+                        <summary style="font-weight: 600; color: var(--color-primary); padding: 0.25rem 0;">
+                            View Calculation Methodology
+                        </summary>
+                        <div style="padding-top: 0.5rem; line-height: 1.5;">
+                            <p style="margin-bottom: 0.35rem;">
+                                <strong>Travel Season:</strong> {{ est.target_travel_period }}
+                            </p>
+                            <p style="margin: 0;">
+                                <strong>Formula & Rationale:</strong> {{ est.calculation_methodology }}
+                            </p>
+                        </div>
+                    </details>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <div style="background-color: var(--bg-surface); padding: 2.5rem; text-align: center; border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
-            <p style="color: var(--text-muted);">No budget estimates found for this destination.</p>
+        <!-- Dedicated Empty State for destinations without budget estimates -->
+        <div style="background-color: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 3rem 2rem; text-align: center; max-width: 650px; margin: 2rem auto; box-shadow: var(--shadow-sm);">
+            <div style="font-size: 2.5rem; margin-bottom: 0.75rem;" aria-hidden="true">📊</div>
+            <h3 style="color: var(--color-primary); font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">
+                Budget estimates unavailable
+            </h3>
+            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 1.5rem;">
+                No budget estimates are currently available for this destination. This academic prototype contains predefined estimates for the existing destination dataset.
+            </p>
+            <a href="{{ url_for('destination_detail', destination_id=selected_dest.destination_id) }}" class="btn btn-secondary btn-sm">
+                Return to Destination Details
+            </a>
         </div>
     {% endif %}
 
 {% else %}
-    <div style="background-color: var(--bg-surface); padding: 3rem; text-align: center; border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
-        <h3 style="color: var(--color-primary); margin-bottom: 0.5rem;">Select a Destination Above</h3>
-        <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto;">
+    <div style="background-color: var(--bg-surface); padding: 3rem; text-align: center; border-radius: var(--radius-lg); border: 1px solid var(--border-light); max-width: 700px; margin: 2rem auto; box-shadow: var(--shadow-sm);">
+        <h3 style="color: var(--color-primary); font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem;">Select a Destination Above</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0;">
             Choose any destination from the dropdown to compare its detailed itemized travel expenses across Bengaluru, Kolkata, New Delhi, and any future origin cities in the database.
         </p>
     </div>

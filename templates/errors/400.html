@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Bad Request - YatraSetu{% endblock %}
+
+{% block content %}
+<div style="background-color: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 4rem 2rem; text-align: center; max-width: 600px; margin: 3rem auto;">
+    <h1 style="font-size: 3rem; color: var(--color-warning); font-weight: 800; margin-bottom: 0.5rem;">400</h1>
+    <h2 style="font-size: 1.5rem; color: var(--text-main); margin-bottom: 1rem;">Unable to Process Request</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6;">
+        {{ error_message or "The request could not be processed. This typically occurs when a security or CSRF token has expired. Please refresh the page and try again." }}
+    </p>
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <button type="button" onclick="window.location.reload()" class="btn btn-primary">Refresh Page</button>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Return to Home</a>
+    </div>
+</div>
+{% endblock %}

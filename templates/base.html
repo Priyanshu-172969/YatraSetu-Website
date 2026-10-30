@@ -4,14 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}YatraSetu: Indian Destination Explorer & Trip Planner{% endblock %}</title>
+    <!-- Brand Favicons & Icons -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <!-- Top Navigation Bar -->
     <header class="navbar">
         <div class="nav-container">
-            <a href="{{ url_for('home') }}" class="brand-logo">
-                <span>🏛️ YatraSetu</span>
+            <a href="{{ url_for('home') }}" class="brand-logo" aria-label="YatraSetu Home">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="YatraSetu Emblem" class="brand-icon" width="36" height="36">
+                <span class="brand-name"><span class="brand-yatra">Yatra</span><span class="brand-setu">Setu</span></span>
                 <span class="brand-badge">India</span>
             </a>
             <nav>
@@ -20,7 +25,7 @@
                     <li><a href="{{ url_for('destination_list') }}" class="{% if request.endpoint == 'destination_list' %}active{% endif %}">Explore</a></li>
                     <li><a href="{{ url_for('budget_compare') }}" class="{% if request.endpoint == 'budget_compare' %}active{% endif %}">Budgets</a></li>
                     <li><a href="{{ url_for('trip_list') }}" class="{% if request.endpoint and request.endpoint.startswith('trip_') %}active{% endif %}">Trip Planner</a></li>
-                    <li><a href="{{ url_for('reports_dashboard') }}" class="{% if request.endpoint == 'reports_dashboard' %}active{% endif %}">SQL Reports</a></li>
+                    <li><a href="{{ url_for('reports_dashboard') }}" class="{% if request.endpoint == 'reports_dashboard' %}active{% endif %}">Reports</a></li>
                     <li><a href="{{ url_for('manage_destinations') }}" class="nav-cta {% if request.endpoint and request.endpoint.startswith('manage_') %}active{% endif %}">Manage</a></li>
                 </ul>
             </nav>
@@ -53,8 +58,8 @@
                 <h3 id="modalTitle" class="modal-title">Confirm Deletion</h3>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="deleteItemName">this record</strong>?</p>
-                <p id="deleteWarningText" style="color: var(--color-danger); margin-top: 0.5rem; font-size: 0.88rem;">
+                <p id="deleteItemPrompt">Are you sure you want to delete <strong id="deleteItemName">this record</strong>?</p>
+                <p id="deleteWarningText" style="color: var(--color-danger); margin-top: 0.5rem; font-size: 0.88rem; line-height: 1.5;">
                     This action is permanent and cannot be undone.
                 </p>
             </div>
@@ -62,7 +67,7 @@
                 <button type="button" id="deleteCancelBtn" class="btn btn-secondary">Cancel</button>
                 <form id="deleteConfirmForm" method="POST" style="display: inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                    <button type="submit" id="deleteConfirmSubmitBtn" class="btn btn-danger">Delete</button>
                 </form>
             </div>
         </div>
@@ -71,9 +76,13 @@
     <!-- Application Footer -->
     <footer class="footer">
         <div class="footer-container">
-            <div class="footer-copy">
-                <strong>YatraSetu: An Indian Destination Explorer and Trip Planner</strong>
-                <span>College DBMS Individual Academic Project | MySQL & Python Flask</span>
+            <div class="footer-brand-wrap">
+                <img src="{{ url_for('static', filename='images/logo-emblem-badge.png') }}" alt="YatraSetu Heritage Travel Emblem" class="footer-logo" width="46" height="46">
+                <div class="footer-copy">
+                    <strong class="footer-title"><span class="brand-yatra">Yatra</span><span class="brand-setu">Setu</span>: An Indian Destination Explorer and Trip Planner</strong>
+                    <span class="footer-tagline">Explore • Plan • Experience</span>
+                    <span class="footer-subtext">College DBMS Individual Academic Project | MySQL & Python Flask</span>
+                </div>
             </div>
             <ul class="footer-links">
                 <li><a href="{{ url_for('destination_list') }}">Destinations</a></li>

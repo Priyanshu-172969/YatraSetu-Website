@@ -9,6 +9,7 @@ import math
 import json
 import secrets
 import hmac
+from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
 from config import Config
 from db import (
@@ -47,9 +48,7 @@ def csrf_protect():
             abort(400, description="Invalid or missing CSRF security token. Please refresh the page and try again.")
 
 
-# ----------------------------------------------------------------------------
 # Template Filters & Helpers
-# ----------------------------------------------------------------------------
 @app.template_filter('split_urls')
 def split_urls(url_string):
     """Splits a pipe-separated (|) URL string into a list of clean, non-empty URLs."""
@@ -140,12 +139,58 @@ def get_destination_image(destination_id):
 app.jinja_env.globals['get_destination_image'] = get_destination_image
 
 
+def is_valid_http_url(url_str):
+    """
+    Validates that a URL string has http or https scheme and a valid network domain.
+    Used for safe external tourism and supporting documentation links.
+    """
+    if not url_str or not isinstance(url_str, str):
+        return False
+    try:
+        parsed = urlparse(url_str.strip())
+        return parsed.scheme in ('http', 'https') and bool(parsed.netloc)
+    except Exception:
+        return False
+
+
+@app.template_filter('category_badge')
+def category_badge(category):
+    """
+    Maps a category string (including compound categories like Wildlife/Nature or Beach/Coastal)
+    to the appropriate CSS badge class defined in style.css.
+    Falls back gracefully to badge-default for unknown categories.
+    """
+    if not category:
+        return 'badge-default'
+    cat_lower = str(category).lower()
+    if 'heritage' in cat_lower:
+        return 'badge-heritage'
+    if 'religio' in cat_lower or 'pilgrim' in cat_lower:
+        return 'badge-religious'
+    if 'wildlife' in cat_lower:
+        return 'badge-wildlife'
+    if 'beach' in cat_lower or 'coastal' in cat_lower:
+        return 'badge-beach'
+    if 'nature' in cat_lower:
+        return 'badge-nature'
+    if 'cultur' in cat_lower:
+        return 'badge-cultural'
+    return 'badge-default'
+
+app.jinja_env.globals['category_badge'] = category_badge
+
+
 # ----------------------------------------------------------------------------
 # Error Handlers
 # ----------------------------------------------------------------------------
 @app.errorhandler(DatabaseConnectionError)
 def handle_db_connection_error(error):
     return render_template('errors/db_unavailable.html', db_message=str(error)), 503
+
+@app.errorhandler(400)
+def handle_bad_request(error):
+    desc = getattr(error, 'description', 'Invalid or missing CSRF security token. Please refresh the page and try again.')
+    return render_template('errors/400.html', error_message=str(desc)), 400
 
 @app.errorhandler(404)
 def handle_not_found(error):
@@ -191,9 +236,9 @@ def home():
         return render_template('errors/db_unavailable.html', db_message=str(e)), 503
 
 
-# ----------------------------------------------------------------------------
-# 2. Destination Explorer
-# ----------------------------------------------------------------------------
+
+#2.Destination Explorer
+
 @app.route('/destinations')
 def destination_list():
     try:
@@ -258,6 +303,10 @@ def destination_list():
         dest_params = params + [per_page, offset]
         destinations = fetch_all(dest_query, dest_params)
 
+        # All destination place names for lightweight search autocomplete suggestions
+        names_rows = fetch_all("SELECT DISTINCT place_name FROM destination_core ORDER BY place_name ASC")
+        place_names = [row['place_name'] for row in names_rows if isinstance(row, dict) and 'place_name' in row]
+
         return render_template(
             'destinations/list.html',
             destinations=destinations,
@@ -268,7 +317,8 @@ def destination_list():
             selected_category=selected_category,
             current_page=page,
             total_pages=total_pages,
-            total_matches=total_matches
+            total_matches=total_matches,
+            place_names=place_names
         )
 
     except DatabaseConnectionError as e:
@@ -476,7 +526,7 @@ def trip_delete(trip_id):
         trip = fetch_one("SELECT trip_name FROM trip_plans WHERE trip_id = %s", (trip_id,))
         if trip:
             execute_query("DELETE FROM trip_plans WHERE trip_id = %s", (trip_id,))
-            flash(f"Trip '{trip['trip_name']}' and its scheduled stops were deleted.", "success")
+            flash(f"Trip plan '{trip['trip_name']}' was successfully deleted.", "success")
         else:
             flash("Trip plan not found or already deleted.", "error")
         return redirect(url_for('trip_list'))
@@ -531,6 +581,45 @@ def trip_add_stop(trip_id):
     except Exception as e:
         app.logger.error("Error adding stop to trip %s: %s", trip_id, e, exc_info=True)
         flash("An error occurred while adding the destination stop.", "error")
+        return redirect(url_for('trip_detail', trip_id=trip_id))
+
+
+@app.route('/trips/<int:trip_id>/stops/<int:stop_id>/update', methods=['POST'])
+def trip_update_stop(trip_id, stop_id):
+    try:
+        trip = fetch_one("SELECT trip_id FROM trip_plans WHERE trip_id = %s", (trip_id,))
+        if not trip:
+            abort(404)
+
+        stop = fetch_one("SELECT stop_id, visit_order FROM trip_plan_destinations WHERE stop_id = %s AND trip_id = %s", (stop_id, trip_id))
+        if not stop:
+            flash("Stop record not found.", "error")
+            return redirect(url_for('trip_detail', trip_id=trip_id))
+
+        planned_days_raw = request.form.get('planned_days', '1').strip()
+        stop_notes = request.form.get('stop_notes', '').strip()
+
+        try:
+            planned_days = int(planned_days_raw)
+            if planned_days < 1 or planned_days > 30:
+                flash("Stop duration must be between 1 and 30 days.", "error")
+                return redirect(url_for('trip_detail', trip_id=trip_id))
+        except (ValueError, TypeError):
+            flash("Planned stop duration must be a valid number between 1 and 30 days.", "error")
+            return redirect(url_for('trip_detail', trip_id=trip_id))
+
+        execute_query("""
+            UPDATE trip_plan_destinations
+            SET planned_days = %s, stop_notes = %s
+            WHERE stop_id = %s AND trip_id = %s
+        """, (planned_days, stop_notes if stop_notes else None, stop_id, trip_id))
+
+        flash(f"Stop #{stop['visit_order']} details updated successfully.", "success")
+        return redirect(url_for('trip_detail', trip_id=trip_id))
+
+    except Exception as e:
+        app.logger.error("Error updating stop %s in trip %s: %s", stop_id, trip_id, e, exc_info=True)
+        flash("An error occurred while updating the stop details.", "error")
         return redirect(url_for('trip_detail', trip_id=trip_id))
 
 
@@ -713,6 +802,17 @@ def destination_create():
                 flash("All required fields marked with an asterisk (*) must be filled.", "error")
                 return render_template('destinations/form.html', destination=request.form, is_edit=False)
 
+            # URL scheme & formatting validation
+            if not is_valid_http_url(primary_official_source_url):
+                flash("Primary official portal URL must be a valid web address starting with http:// or https://", "error")
+                return render_template('destinations/form.html', destination=request.form, is_edit=False)
+
+            if supporting_source_urls:
+                for u in split_urls(supporting_source_urls):
+                    if not is_valid_http_url(u):
+                        flash("Supporting source URLs must be valid web addresses starting with http:// or https:// (separated by | if multiple).", "error")
+                        return render_template('destinations/form.html', destination=request.form, is_edit=False)
+
             # Transactional multi-table write
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute("""
@@ -802,6 +902,21 @@ def destination_edit(destination_id):
                 form_data['destination_id'] = destination_id
                 return render_template('destinations/form.html', destination=form_data, is_edit=True)
 
+            # URL scheme & formatting validation
+            if not is_valid_http_url(primary_official_source_url):
+                flash("Primary official portal URL must be a valid web address starting with http:// or https://", "error")
+                form_data = dict(request.form)
+                form_data['destination_id'] = destination_id
+                return render_template('destinations/form.html', destination=form_data, is_edit=True)
+
+            if supporting_source_urls:
+                for u in split_urls(supporting_source_urls):
+                    if not is_valid_http_url(u):
+                        flash("Supporting source URLs must be valid web addresses starting with http:// or https:// (separated by | if multiple).", "error")
+                        form_data = dict(request.form)
+                        form_data['destination_id'] = destination_id
+                        return render_template('destinations/form.html', destination=form_data, is_edit=True)
+
             # Transactional multi-table update
             with get_db_cursor(commit=True) as cursor:
                 cursor.execute("""
@@ -869,7 +984,7 @@ def destination_delete(destination_id):
             trips_str = ", ".join([f"'{r['trip_name']}'" for r in trip_references[:3]])
             flash(
                 f"Cannot delete destination: It is currently part of active trip plan(s) ({trips_str}). "
-                f"MySQL referential constraint (ON DELETE RESTRICT) prohibits deletion until it is removed from itineraries.",
+                f"Please remove it from those itineraries before deleting it.",
                 "error"
             )
             return redirect(url_for('manage_destinations'))
@@ -878,7 +993,7 @@ def destination_delete(destination_id):
         dest = fetch_one("SELECT place_name FROM destination_core WHERE destination_id = %s", (destination_id,))
         if dest:
             execute_query("DELETE FROM destination_core WHERE destination_id = %s", (destination_id,))
-            flash(f"Destination '{dest['place_name']}' (ID #{destination_id}) was successfully deleted.", "success")
+            flash(f"Destination '{dest['place_name']}' was successfully deleted from the database.", "success")
 
         return redirect(url_for('manage_destinations'))
 

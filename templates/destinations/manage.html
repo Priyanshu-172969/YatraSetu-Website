@@ -6,12 +6,12 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Destination Management (CRUD)</h1>
-        <p class="page-subtitle">Demonstrate database insert, view, update, and referential delete operations</p>
+        <p class="page-subtitle">Local database demonstration area for inserting, viewing, editing, and deleting destination records</p>
     </div>
     <a href="{{ url_for('destination_create') }}" class="btn btn-primary">+ Add New Destination</a>
 </div>
 
-<!-- Search & Category Filter -->
+<!-- Search & State Filter -->
 <div class="filter-panel">
     <form method="GET" action="{{ url_for('manage_destinations') }}" class="filter-form">
         <div class="form-group" style="grid-column: span 2;">
@@ -29,13 +29,13 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 60px;">ID</th>
+                <th style="width: 70px;">ID</th>
                 <th>Place Name</th>
                 <th>City / Locality</th>
                 <th>District</th>
                 <th>State / UT</th>
                 <th>Category</th>
-                <th>Trip Plan Stops</th>
+                <th>Itinerary Stops</th>
                 <th style="text-align: right; width: 180px;">Actions</th>
             </tr>
         </thead>
@@ -52,25 +52,28 @@
                         <td>{{ d.locality_city }}</td>
                         <td>{{ d.district }}</td>
                         <td>{{ d.state_ut }}</td>
-                        <td><span class="badge badge-default">{{ d.category }}</span></td>
+                        <td><span class="badge {{ d.category | category_badge }}">{{ d.category }}</span></td>
                         <td>
                             {% if d.active_trip_stops > 0 %}
-                                <span class="badge" style="background-color: #fee2e2; color: #991b1b;">
-                                    {{ d.active_trip_stops }} plan(s)
+                                <span class="badge" style="background-color: #fee2e2; color: #991b1b; font-weight: 600;">
+                                    {{ d.active_trip_stops }} plan{% if d.active_trip_stops != 1 %}s{% endif %}
                                 </span>
                             {% else %}
                                 <span style="color: var(--text-light); font-size: 0.85rem;">None</span>
                             {% endif %}
                         </td>
                         <td style="text-align: right; white-space: nowrap;">
-                            <a href="{{ url_for('destination_edit', destination_id=d.destination_id) }}" class="btn btn-secondary btn-sm" title="Edit Destination">
+                            <a href="{{ url_for('destination_edit', destination_id=d.destination_id) }}" class="btn btn-secondary btn-sm" title="Edit Destination Record" aria-label="Edit {{ d.place_name }}">
                                 ✏️ Edit
                             </a>
                             <button type="button"
                                     class="btn btn-danger btn-sm btn-delete-trigger"
+                                    title="Delete Destination"
+                                    aria-label="Delete {{ d.place_name }}"
                                     data-action="{{ url_for('destination_delete', destination_id=d.destination_id) }}"
                                     data-name="{{ d.place_name }} (ID #{{ d.destination_id }})"
-                                    data-warning="{% if d.active_trip_stops > 0 %}WARNING: This destination is part of {{ d.active_trip_stops }} active trip plan(s). MySQL referential integrity (ON DELETE RESTRICT) will reject this deletion!{% else %}This will remove the destination, its details, and its budget estimates from MySQL.{% endif %}">
+                                    data-title="{% if d.active_trip_stops > 0 %}Cannot Delete Destination{% else %}Delete this destination?{% endif %}"
+                                    data-warning="{% if d.active_trip_stops > 0 %}This destination is currently part of {{ d.active_trip_stops }} saved itinerar{% if d.active_trip_stops == 1 %}y{% else %}ies{% endif %}. Please remove it from those itineraries before deleting it.{% else %}This will remove the destination and any associated details and budget estimates from the local application database. This action cannot be undone.{% endif %}">
                                 🗑️ Delete
                             </button>
                         </td>
@@ -79,7 +82,7 @@
             {% else %}
                 <tr>
                     <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                        No destination records match your search.
+                        No destination records match your search query.
                     </td>
                 </tr>
             {% endif %}
@@ -87,8 +90,10 @@
     </table>
 </div>
 
-<div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-md); padding: 1rem 1.25rem; font-size: 0.88rem; color: #1e40af;">
-    <strong>ℹ️ College DBMS Demonstration Note:</strong>
-    Modifying or deleting records here applies directly to MySQL tables (<code>destination_core</code>, <code>destination_details</code>, <code>budget_estimates</code>). The original CSV files in the project root remain permanently unmodified. If a destination is currently linked to an active itinerary in <code>trip_plan_destinations</code>, the deletion will be safely rejected by MySQL's <code>ON DELETE RESTRICT</code> foreign key constraint.
+<div class="alert alert-info" style="margin-top: 1.75rem; line-height: 1.6;">
+    <div>
+        <strong style="display: block; margin-bottom: 0.25rem;">ℹ️ Destination Management Demonstration Note:</strong>
+        Manage is provided for the DBMS project demonstration. Changes made here are saved directly to the local application database. Editing the database does not automatically update the source CSV files. Newly added destinations do not automatically receive a curated photograph or budget estimate unless corresponding records exist.
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240" role="img" aria-label="YatraSetu Heritage Pin Logo">
+  <title>YatraSetu Heritage Pin Logo</title>
+  <desc>Refined location-pin emblem featuring Indian heritage monuments: Shore Temple, Sanchi Stupa, Temple Shikhara, Taj Mahal, and winding Setu path in navy and terracotta.</desc>
+  <defs>
+    <linearGradient id="pinTerracotta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fda22e"/>
+      <stop offset="50%" stop-color="#ec6b0e"/>
+      <stop offset="100%" stop-color="#c94e10"/>
+    </linearGradient>
+    <linearGradient id="pinNavy" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a2b49"/>
+      <stop offset="100%" stop-color="#0b172a"/>
+    </linearGradient>
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <clipPath id="pinClip">
+      <path d="M100 12 C 50 12, 18 44, 18 94 C 18 134, 62 178, 100 224 C 138 178, 182 134, 182 94 C 182 44, 150 12, 100 12 Z"/>
+    </clipPath>
+    <filter id="pinShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Pin Shadow & Outline -->
+  <path d="M100 8 C 46 8, 12 42, 12 94 C 12 138, 58 184, 100 232 C 142 184, 188 138, 188 94 C 188 42, 154 8, 100 8 Z"
+        fill="url(#pinTerracotta)" filter="url(#pinShadow)"/>
+
+  <!-- Inner Pin Border Ring (Navy) -->
+  <path d="M100 13 C 51 13, 19 45, 19 94 C 19 135, 63 179, 100 223 C 137 179, 181 135, 181 94 C 181 45, 149 13, 100 13 Z"
+        fill="#0f1d32"/>
+
+  <!-- Inner Canvas Area -->
+  <g clip-path="url(#pinClip)">
+    <rect x="0" y="0" width="200" height="240" fill="#fcf9eb"/>
+    <circle cx="100" cy="95" r="42" fill="url(#sunGrad)"/>
+    <path d="M50 82 Q65 72 82 82 T115 80 T150 84 L150 105 L50 105 Z" fill="#ffffff" opacity="0.6"/>
+    <path d="M68 62 Q72 58 76 62 Q80 58 84 62" stroke="#1a2b49" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M130 68 Q133 65 136 68 Q139 65 142 68" stroke="#1a2b49" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+    <path d="M35 110 A 68 68 0 0 1 165 110" stroke="#f97316" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+    <!-- 1. Left: Dravidian Shore Temple -->
+    <g id="shoreTemple" fill="#c94e10">
+      <rect x="26" y="112" width="28" height="26" rx="1"/>
+      <path d="M30 112 L30 128 Q40 122 50 128 L50 112 Z" fill="#b93f10"/>
+      <path d="M35 138 A 5 5 0 0 1 45 138 Z" fill="#5c1d02"/>
+      <rect x="29" y="104" width="22" height="8" rx="1"/>
+      <rect x="32" y="97" width="16" height="7" rx="1"/>
+      <rect x="35" y="91" width="10" height="6" rx="1"/>
+      <path d="M38 91 Q40 85 42 91 Z" fill="#fda22e"/>
+      <circle cx="40" cy="85" r="1.5" fill="#fda22e"/>
+    </g>
+
+    <!-- 2. Center-Left: Great Sanchi Stupa -->
+    <g id="sanchiStupa" fill="#1a2b49">
+      <rect x="52" y="118" width="34" height="20" rx="1"/>
+      <rect x="50" y="134" width="38" height="4" rx="1" fill="#0f1d32"/>
+      <path d="M54 118 A 16 16 0 0 1 84 118 Z"/>
+      <rect x="67" y="98" width="4" height="4" fill="#0f1d32"/>
+      <path d="M65 98 L73 98 M66 95 L72 95 M67 92 L71 92" stroke="#fda22e" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="69" y1="102" x2="69" y2="90" stroke="#fda22e" stroke-width="1.2"/>
+    </g>
+
+    <!-- 3. Center-Right: North Indian Nagara Temple -->
+    <g id="nagaraTemple" fill="#d9531e">
+      <rect x="88" y="114" width="16" height="24" rx="1" fill="#c94e10"/>
+      <rect x="91" y="106" width="10" height="8" rx="1"/>
+      <path d="M102 138 L102 112 Q105 85 112 70 Q119 85 122 112 L122 138 Z"/>
+      <ellipse cx="112" cy="70" rx="4" ry="2" fill="#fda22e"/>
+      <circle cx="112" cy="67" r="1.5" fill="#fda22e"/>
+      <path d="M113 66 L122 62 L113 58 Z" fill="#ea580c"/>
+    </g>
+
+    <!-- 4. Right: Taj Mahal -->
+    <g id="tajMahal">
+      <rect x="124" y="122" width="34" height="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+      <path d="M135 138 L135 127 Q141 122 147 127 L147 138 Z" fill="#334155"/>
+      <path d="M127 132 A 2 2 0 0 1 131 132 L131 138 L127 138 Z" fill="#64748b"/>
+      <path d="M151 132 A 2 2 0 0 1 155 132 L155 138 L151 138 Z" fill="#64748b"/>
+      <path d="M133 122 Q131 114 136 108 Q141 101 141 97 Q141 101 146 108 Q151 114 149 122 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5"/>
+      <line x1="141" y1="97" x2="141" y2="92" stroke="#fda22e" stroke-width="1"/>
+      <path d="M129 116 Q131 112 133 116 Z" fill="#ffffff"/>
+      <path d="M149 116 Q151 112 153 116 Z" fill="#ffffff"/>
+      <rect x="122" y="106" width="2.5" height="32" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.3"/>
+      <rect x="121" y="104" width="4.5" height="2" fill="#ffffff"/>
+      <rect x="157" y="106" width="2.5" height="32" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.3"/>
+      <rect x="156" y="104" width="4.5" height="2" fill="#ffffff"/>
+    </g>
+
+    <path d="M18 140 Q30 130 45 140 Q60 132 75 142 Q100 134 125 142 Q150 134 175 142 L182 150 L18 150 Z" fill="#15803d"/>
+    <path d="M22 144 Q35 136 50 144 Q80 138 110 144 Q140 136 170 144 L182 154 L18 154 Z" fill="#166534"/>
+
+    <path d="M90 146 Q135 144 182 148 L182 185 Q135 180 90 170 Z" fill="url(#waterGrad)"/>
+    <path d="M120 152 H165 M130 158 H172 M115 164 H155 M135 170 H160" stroke="#bae6fd" stroke-width="1" stroke-linecap="round"/>
+
+    <g id="boat" transform="translate(132, 154)">
+      <path d="M0 8 Q12 14 26 8 L22 4 L4 4 Z" fill="#0f1d32"/>
+      <path d="M2 7 Q12 11 24 7" stroke="#ea580c" stroke-width="0.8" fill="none"/>
+      <path d="M8 4 L11 0 L21 0 L18 4 Z" fill="#ea580c"/>
+      <line x1="11" y1="0" x2="11" y2="4" stroke="#78350f" stroke-width="0.8"/>
+      <line x1="20" y1="0" x2="18" y2="4" stroke="#78350f" stroke-width="0.8"/>
+      <circle cx="5" cy="2" r="1.5" fill="#1a2b49"/>
+      <path d="M5 3.5 L5 7 M4 5 L8 7" stroke="#1a2b49" stroke-width="1"/>
+    </g>
+
+    <!-- Winding Setu River/Path -->
+    <path d="M78 138 C 115 142, 115 160, 72 178 C 50 188, 62 208, 100 226 C 108 214, 130 196, 104 182 C 78 168, 138 154, 88 138 Z"
+          fill="url(#pinNavy)"/>
+    <path d="M82 138 C 112 143, 110 162, 76 179 C 55 189, 68 209, 100 225"
+          fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/>
+  </g>
+
+  <!-- Outer Borders -->
+  <path d="M100 8 C 46 8, 12 42, 12 94 C 12 138, 58 184, 100 232 C 142 184, 188 138, 188 94 C 188 42, 154 8, 100 8 Z"
+        fill="none" stroke="#ea580c" stroke-width="3"/>
+  <path d="M100 13 C 51 13, 19 45, 19 94 C 19 135, 63 179, 100 223 C 137 179, 181 135, 181 94 C 181 45, 149 13, 100 13 Z"
+        fill="none" stroke="#fda22e" stroke-width="1.5"/>
+</svg>

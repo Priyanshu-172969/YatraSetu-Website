@@ -36,3 +36,5 @@ __pycache__/
 *.py[cod]
 
 backup_pre_migration.json
+
+scratch/

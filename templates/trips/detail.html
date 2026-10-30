@@ -13,9 +13,9 @@
 <!-- Header -->
 <div class="page-header">
     <div>
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-            <span class="badge" style="background-color: #e0e7ff; color: #3730a3;">🧭 Origin: {{ trip.starting_city }}</span>
-            <small style="color: var(--text-light); font-weight: 600;">Trip ID #{{ trip.trip_id }}</small>
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+            <span class="badge" style="background-color: #e0e7ff; color: #3730a3; font-weight: 600;">🧭 Origin: {{ trip.starting_city }}</span>
+            <small style="color: var(--text-light); font-weight: 600;">Itinerary #{{ trip.trip_id }}</small>
         </div>
         <h1 class="page-title">{{ trip.trip_name }}</h1>
         <p class="page-subtitle">
@@ -23,22 +23,23 @@
             {% if trip.created_at %}&nbsp;|&nbsp; Created: {{ trip.created_at.strftime('%d %b %Y') }}{% endif %}
         </p>
     </div>
-    <div style="display: flex; gap: 0.75rem;">
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
         <a href="{{ url_for('trip_edit', trip_id=trip.trip_id) }}" class="btn btn-secondary">✏️ Edit Details</a>
         <button type="button"
                 class="btn btn-danger btn-delete-trigger"
                 data-action="{{ url_for('trip_delete', trip_id=trip.trip_id) }}"
                 data-name="{{ trip.trip_name }}"
-                data-warning="Deleting this trip plan will automatically remove all scheduled stops (ON DELETE CASCADE).">
+                data-title="Delete this trip plan?"
+                data-warning="{% if stops|length > 0 %}This trip contains {{ stops|length }} scheduled destination{% if stops|length != 1 %}s{% endif %}. Deleting the plan will also remove these stops. This action cannot be undone.{% else %}This trip has no scheduled destinations. Deleting the trip plan cannot be undone.{% endif %}">
             🗑️ Delete Trip
         </button>
     </div>
 </div>
 
 {% if trip.notes %}
-    <div style="background-color: var(--bg-surface); border-left: 4px solid var(--color-accent); padding: 1rem 1.25rem; border-radius: var(--radius-sm); margin-bottom: 2rem;">
+    <div style="background-color: var(--bg-surface); border-left: 4px solid var(--color-accent); padding: 1rem 1.25rem; border-radius: var(--radius-sm); margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
         <span style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.25rem;">Trip Notes</span>
-        <p style="color: var(--text-main); font-size: 0.95rem;">{{ trip.notes }}</p>
+        <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5;">{{ trip.notes }}</p>
     </div>
 {% endif %}
 
@@ -47,14 +48,19 @@
     <!-- Left Column: Itinerary Stops Table -->
     <div>
         <div class="detail-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--color-accent-soft); padding-bottom: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--color-accent-soft); padding-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
                 <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary); margin: 0;">
                     Scheduled Stops ({{ stops|length }})
                 </h2>
                 {% set stop_days = stops|sum(attribute='planned_days') %}
-                <span class="badge" style="background-color: var(--bg-muted); color: var(--text-main); font-size: 0.85rem;">
-                    Total Stop Days: <strong>{{ stop_days }}</strong> / {{ trip.planned_duration_days }}
-                </span>
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <span class="badge" style="background-color: var(--color-success-bg); color: var(--color-success); font-size: 0.8rem; font-weight: 600; border: 1px solid rgba(27, 122, 67, 0.2);">
+                        ✓ Live Saved to MySQL
+                    </span>
+                    <span class="badge" style="background-color: var(--bg-muted); color: var(--text-main); font-size: 0.85rem;">
+                        Total Stop Days: <strong>{{ stop_days }}</strong> / {{ trip.planned_duration_days }}
+                    </span>
+                </div>
             </div>
 
             {% if stops %}
@@ -92,11 +98,25 @@
                                         {{ stop.stop_notes or '-' }}
                                     </td>
                                     <td style="text-align: right; white-space: nowrap;">
+                                        <!-- Edit Stop Button -->
+                                        <button type="button"
+                                                class="btn btn-secondary btn-sm btn-edit-stop"
+                                                style="padding: 0.2rem 0.5rem;"
+                                                title="Edit planned stay duration & notes"
+                                                aria-label="Edit stop {{ stop.place_name }}"
+                                                data-action="{{ url_for('trip_update_stop', trip_id=trip.trip_id, stop_id=stop.stop_id) }}"
+                                                data-name="{{ stop.place_name }}"
+                                                data-order="{{ stop.visit_order }}"
+                                                data-days="{{ stop.planned_days }}"
+                                                data-notes="{{ stop.stop_notes or '' }}">
+                                            ✏️ Edit
+                                        </button>
+
                                         <!-- Move Up Form -->
                                         {% if not loop.first %}
                                             <form method="POST" action="{{ url_for('trip_move_stop', trip_id=trip.trip_id, stop_id=stop.stop_id, direction='up') }}" style="display: inline;">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                <button type="submit" class="btn btn-secondary btn-sm" title="Move Up" style="padding: 0.2rem 0.45rem;">▲</button>
+                                                <button type="submit" class="btn btn-secondary btn-sm" title="Move Up" aria-label="Move stop up" style="padding: 0.2rem 0.45rem;">▲</button>
                                             </form>
                                         {% endif %}
 
@@ -104,7 +124,7 @@
                                         {% if not loop.last %}
                                             <form method="POST" action="{{ url_for('trip_move_stop', trip_id=trip.trip_id, stop_id=stop.stop_id, direction='down') }}" style="display: inline;">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                <button type="submit" class="btn btn-secondary btn-sm" title="Move Down" style="padding: 0.2rem 0.45rem;">▼</button>
+                                                <button type="submit" class="btn btn-secondary btn-sm" title="Move Down" aria-label="Move stop down" style="padding: 0.2rem 0.45rem;">▼</button>
                                             </form>
                                         {% endif %}
 
@@ -112,9 +132,12 @@
                                         <button type="button"
                                                 class="btn btn-danger btn-sm btn-delete-trigger"
                                                 style="padding: 0.2rem 0.5rem;"
+                                                title="Remove this destination stop"
+                                                aria-label="Remove stop {{ stop.place_name }}"
                                                 data-action="{{ url_for('trip_delete_stop', trip_id=trip.trip_id, stop_id=stop.stop_id) }}"
                                                 data-name="Stop #{{ stop.visit_order }}: {{ stop.place_name }}"
-                                                data-warning="This destination stop will be removed from this trip plan.">
+                                                data-title="Remove this destination stop?"
+                                                data-warning="This stop will be removed from your itinerary and remaining stops will be resequenced.">
                                             ✕
                                         </button>
                                     </td>
@@ -123,14 +146,51 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Modal for Editing Stop Details with Explicit Save Changes -->
+                <div id="editStopModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="editStopTitle">
+                    <div class="modal-box">
+                        <div class="modal-header">
+                            <h3 id="editStopTitle" class="modal-title">Edit Itinerary Stop</h3>
+                        </div>
+                        <form id="editStopForm" method="POST" class="needs-validation">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="modal-body">
+                                <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                                    Adjust planned stay duration and notes for <strong id="editStopPlaceName" style="color: var(--color-primary);">Destination</strong>.
+                                </p>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label class="form-label" for="modal_planned_days">Planned Stay (Days) *</label>
+                                    <input type="number" id="modal_planned_days" name="planned_days" class="form-control" required min="1" max="30">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="modal_stop_notes">Stop Notes (Optional)</label>
+                                    <textarea id="modal_stop_notes" name="stop_notes" class="form-control" rows="3" placeholder="Key monuments, arrival timings, transit notes..."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="editStopCancelBtn" class="btn btn-secondary">Cancel</button>
+                                <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             {% else %}
-                <div style="text-align: center; padding: 2.5rem 1.5rem; background-color: var(--bg-muted); border-radius: var(--radius-md); border: 1px dashed var(--border-light);">
-                    <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.25rem;">
-                        No destinations have been scheduled in this itinerary yet.
+                <div style="text-align: center; padding: 2.75rem 1.5rem; background-color: var(--bg-muted); border-radius: var(--radius-md); border: 1px dashed var(--border-light);">
+                    <div style="font-size: 2.2rem; margin-bottom: 0.75rem;" aria-hidden="true">📍</div>
+                    <h3 style="font-size: 1.15rem; color: var(--color-primary); font-weight: 700; margin-bottom: 0.5rem;">
+                        No destinations added yet
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 460px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                        Your itinerary is currently empty. Use the form on the right to add your first destination stop or browse the explorer.
                     </p>
                     <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
-                        <a href="#addStopSection" class="btn btn-primary btn-sm">Add First Stop &darr;</a>
-                        <a href="{{ url_for('destination_list') }}" class="btn btn-secondary btn-sm">Browse Destinations</a>
+                        <a href="#addStopSection" id="addFirstStopBtn" class="btn btn-primary">
+                            📍 Add First Stop &darr;
+                        </a>
+                        <a href="{{ url_for('destination_list') }}" class="btn btn-secondary">
+                            🧭 Browse Destinations
+                        </a>
                     </div>
                 </div>
             {% endif %}
@@ -148,25 +208,23 @@
                     <select id="destination_id" name="destination_id" class="form-control" required>
                         <option value="">-- Choose Destination --</option>
                         {% for d in all_destinations %}
-                            <option value="{{ d.destination_id }}">
-                                {{ d.place_name }} ({{ d.state_ut }})
-                            </option>
+                            <option value="{{ d.destination_id }}">{{ d.place_name }} ({{ d.state_ut }})</option>
                         {% endfor %}
                     </select>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" for="planned_days">Days at Stop *</label>
-                    <input type="number" id="planned_days" name="planned_days" class="form-control" required min="1" max="30" value="2">
+                    <label class="form-label" for="planned_days">Stay Duration (Days) *</label>
+                    <input type="number" id="planned_days" name="planned_days" class="form-control" value="1" min="1" max="30" required>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label class="form-label" for="stop_notes">Stop Notes (Optional)</label>
-                    <textarea id="stop_notes" name="stop_notes" class="form-control" rows="2" placeholder="Activities, sunrise viewpoint, hotel preference..."></textarea>
+                    <textarea id="stop_notes" name="stop_notes" class="form-control" rows="2" placeholder="Activities planned, arrival timing..."></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    + Add to Itinerary
+                    + Add Stop to Itinerary
                 </button>
             </form>
         </div>

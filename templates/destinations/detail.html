@@ -15,9 +15,9 @@
 <!-- Header -->
 <div class="page-header">
     <div>
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-            <span class="badge badge-default">{{ destination.category }}</span>
-            <small style="color: var(--text-light); font-weight: 600;">Destination ID #{{ destination.destination_id }}</small>
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+            <span class="badge {{ destination.category | category_badge }}">{{ destination.category }}</span>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">{{ destination.state_ut }}</span>
         </div>
         <h1 class="page-title">{{ destination.place_name }}</h1>
         <p class="page-subtitle">📍 {{ destination | format_location(append_district=True) }}</p>
@@ -26,13 +26,10 @@
         <a href="{{ url_for('budget_compare', destination_id=destination.destination_id) }}" class="btn btn-primary">
             💰 Compare Budgets
         </a>
-        <a href="{{ url_for('destination_edit', destination_id=destination.destination_id) }}" class="btn btn-secondary">
-            ✏️ Edit Record
-        </a>
     </div>
 </div>
 
-<!-- Prominent Destination Hero Photograph with Verified Attribution -->
+<!-- Prominent Destination Hero Photograph with Verified Attribution or Polished Fallback -->
 {% set dest_image = destination.destination_id | destination_image %}
 {% if dest_image %}
     <div class="detail-hero-media">
@@ -48,6 +45,16 @@
                 {% endif %}
                 &bull; Source: <a href="{{ dest_image.source_url }}" target="_blank" rel="noopener noreferrer">Wikimedia Commons &nearr;</a>
             </span>
+        </div>
+    </div>
+{% else %}
+    <div class="detail-hero-fallback" style="background: linear-gradient(135deg, #1a2b49 0%, #2c426b 100%); color: #ffffff; border-radius: var(--radius-lg); padding: 2.5rem 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1.5rem; box-shadow: var(--shadow-md);">
+        <div style="font-size: 3rem; line-height: 1;" aria-hidden="true">🏛️</div>
+        <div>
+            <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.35rem; color: #ffffff;">{{ destination.place_name }}</h3>
+            <p style="color: #cbd5e1; font-size: 0.92rem; margin: 0; line-height: 1.4;">
+                Curated photograph not yet cataloged for this destination record in the local image archive.
+            </p>
         </div>
     </div>
 {% endif %}
@@ -144,7 +151,7 @@
                             <span class="info-label" style="display: block; margin-bottom: 0.25rem;">
                                 Supporting Reference{% if support_urls|length > 1 %}s{% endif %}
                             </span>
-                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.45rem;">
                                 {% for u in support_urls %}
                                     <div>
                                         <a href="{{ u }}" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary-light); word-break: break-all; font-size: 0.88rem;">

@@ -6,9 +6,8 @@
 
 USE yatrasetu_db;
 
--- ----------------------------------------------------------------------------
+
 -- 1. BASIC CRUD OPERATIONS
--- ----------------------------------------------------------------------------
 
 -- [READ] Select all destinations with their state and category
 SELECT destination_id, place_name, state_ut, category
@@ -19,6 +18,7 @@ ORDER BY state_ut, place_name;
 SELECT place_name, locality_city, category
 FROM destination_core
 WHERE state_ut = 'Rajasthan';
+
 
 -- [INSERT] Add a new destination into destination_core
 -- NOTE: Safe test insertion (run in a transaction or delete after testing)
@@ -150,11 +150,8 @@ GROUP BY starting_city
 ORDER BY avg_budget_inr ASC;
 
 
--- ----------------------------------------------------------------------------
--- 4. HAVING CLAUSE
--- ----------------------------------------------------------------------------
 
--- [HAVING] Categories that have more than 2 destinations
+-- 4. HAVING CLAUSE
 SELECT 
     category,
     COUNT(*) AS count_in_category
@@ -164,7 +161,6 @@ HAVING COUNT(*) > 2
 ORDER BY count_in_category DESC;
 
 
--- [HAVING] Starting cities where average estimated budget exceeds 7,000 INR
 SELECT 
     starting_city,
     ROUND(AVG(estimated_total_budget_inr), 2) AS avg_city_budget
@@ -173,12 +169,10 @@ GROUP BY starting_city
 HAVING AVG(estimated_total_budget_inr) > 7000;
 
 
--- ----------------------------------------------------------------------------
--- 5. SUBQUERIES
--- ----------------------------------------------------------------------------
 
--- [SUBQUERY in WHERE] Find destinations whose budget from New Delhi is higher
--- than the overall average budget of all New Delhi estimates
+-- 5. SUBQUERIES
+--Find destinations whose budget from New Delhi is higher than the overall average budget of all New Delhi estimates
+
 SELECT 
     c.place_name,
     c.state_ut,
@@ -186,7 +180,7 @@ SELECT
     b.estimated_total_budget_inr
 FROM budget_estimates b
 INNER JOIN destination_core c 
-    ON b.destination_id = c.destination_id
+ON b.destination_id = c.destination_id
 WHERE b.starting_city = 'New Delhi'
   AND b.estimated_total_budget_inr > (
       SELECT AVG(estimated_total_budget_inr)
@@ -196,7 +190,6 @@ WHERE b.starting_city = 'New Delhi'
 ORDER BY b.estimated_total_budget_inr DESC;
 
 
--- [SUBQUERY with NOT IN] Find destinations that have NOT yet been added to any trip plan
 SELECT 
     destination_id,
     place_name,
@@ -209,8 +202,7 @@ WHERE destination_id NOT IN (
 );
 
 
--- [CORRELATED SUBQUERY] For each destination, find the difference between its
--- New Delhi budget and its Bengaluru budget
+
 SELECT 
     c.place_name,
     b_delhi.estimated_total_budget_inr AS delhi_budget,
@@ -224,11 +216,7 @@ JOIN budget_estimates b_blr
 ORDER BY delhi_minus_blr_diff DESC;
 
 
--- ----------------------------------------------------------------------------
 -- 6. COMPREHENSIVE REPORT QUERY
--- ----------------------------------------------------------------------------
-
--- Joined report combining destination identity, logistics, and cost metrics
 SELECT 
     c.place_name,
     c.state_ut,

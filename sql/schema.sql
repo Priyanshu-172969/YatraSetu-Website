@@ -1,9 +1,6 @@
--- ============================================================================
--- YatraSetu: An Indian Destination Explorer and Trip Planner
--- Relational Database Schema Definition (MySQL)
--- Database Name: yatrasetu_db
--- Character Set: utf8mb4 | Collation: utf8mb4_unicode_ci | Engine: InnoDB
--- ============================================================================
+
+-- YatraSetu: (MySQL)
+
 
 CREATE DATABASE IF NOT EXISTS yatrasetu_db
   CHARACTER SET utf8mb4
@@ -11,10 +8,8 @@ CREATE DATABASE IF NOT EXISTS yatrasetu_db
 
 USE yatrasetu_db;
 
--- ----------------------------------------------------------------------------
--- Table 1: destination_core
--- Stores core identification, geographical classification, and category of destinations.
--- ----------------------------------------------------------------------------
+
+--Table 1:destination_core
 CREATE TABLE IF NOT EXISTS destination_core (
     destination_id INT AUTO_INCREMENT,
     place_name VARCHAR(150) NOT NULL,
@@ -25,11 +20,8 @@ CREATE TABLE IF NOT EXISTS destination_core (
     PRIMARY KEY (destination_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- Table 2: destination_details
--- Stores descriptive travel context, visiting guidelines, hours, and sources.
--- Relationship: 1-to-1 with destination_core (destination_id is PK and FK).
--- ----------------------------------------------------------------------------
+
+--Table 2:destination_details
 CREATE TABLE IF NOT EXISTS destination_details (
     destination_id INT NOT NULL,
     description TEXT NOT NULL,
@@ -43,17 +35,14 @@ CREATE TABLE IF NOT EXISTS destination_details (
     local_languages VARCHAR(255) NOT NULL,
     PRIMARY KEY (destination_id),
     CONSTRAINT fk_details_core
-        FOREIGN KEY (destination_id)
-        REFERENCES destination_core (destination_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
+    FOREIGN KEY (destination_id)
+    REFERENCES destination_core (destination_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- Table 3: budget_estimates
--- Stores 23 cost-breakdown and methodology attributes per destination and origin.
--- Enforces uniqueness per (destination_id, starting_city).
--- ----------------------------------------------------------------------------
+
+--Table 3:budget_estimates
 CREATE TABLE IF NOT EXISTS budget_estimates (
     budget_id INT AUTO_INCREMENT,
     destination_id INT NOT NULL,
@@ -88,10 +77,8 @@ CREATE TABLE IF NOT EXISTS budget_estimates (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- Table 4: trip_plans
--- Stores user-created multi-day itineraries and travel parameters.
--- ----------------------------------------------------------------------------
+
+--Table 4:trip_plans
 CREATE TABLE IF NOT EXISTS trip_plans (
     trip_id INT AUTO_INCREMENT,
     trip_name VARCHAR(150) NOT NULL,
@@ -103,11 +90,9 @@ CREATE TABLE IF NOT EXISTS trip_plans (
     PRIMARY KEY (trip_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------------------
--- Table 5: trip_plan_destinations
--- Junction table creating a Many-to-Many relationship between trip_plans and destination_core.
--- Enforces ordered sequence of stops per trip.
--- ----------------------------------------------------------------------------
+
+
+--Table 5:trip_plan_destinations
 CREATE TABLE IF NOT EXISTS trip_plan_destinations (
     stop_id INT AUTO_INCREMENT,
     trip_id INT NOT NULL,

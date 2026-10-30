@@ -6,10 +6,37 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Trip Planner</h1>
-        <p class="page-subtitle">Build, sequence, and customize multi-destination Indian itineraries</p>
+        <p class="page-subtitle">Build, sequence, and customize multi-destination Indian travel itineraries</p>
     </div>
-    <a href="#createTripSection" class="btn btn-primary mobile-only-cta">+ Create New Trip Plan</a>
+    <a href="#createTripSection" class="btn btn-primary mobile-only-cta">+ Create New Itinerary</a>
 </div>
+
+<!-- Two-Step Planning Process Guide -->
+<section class="trip-process-card" aria-label="How Trip Planning Works" style="background-color: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+    <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--color-primary); margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+        🗺️ How Trip Planning Works
+    </h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div style="display: flex; gap: 0.85rem; align-items: flex-start;">
+            <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; background-color: var(--color-primary); color: #ffffff; border-radius: 50%; font-weight: 700; font-size: 0.9rem;">1</span>
+            <div>
+                <strong style="color: var(--color-primary); font-size: 0.96rem;">Create your itinerary</strong>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem; line-height: 1.5;">
+                    Give your plan a name, choose a starting city, and set its planned duration.
+                </p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.85rem; align-items: flex-start;">
+            <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; background-color: var(--color-accent); color: #ffffff; border-radius: 50%; font-weight: 700; font-size: 0.9rem;">2</span>
+            <div>
+                <strong style="color: var(--color-primary); font-size: 0.96rem;">Add destinations</strong>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem; line-height: 1.5;">
+                    Open the itinerary, select the places you want to visit, specify the number of days at each stop, and arrange their order.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
 
 <div class="trip-planner-grid">
     <!-- Left Column: Saved Trip Plans -->
@@ -24,12 +51,14 @@
         {% if trips %}
             <div class="trips-card-stack">
                 {% for trip in trips %}
-                    <div class="card">
+                    <div class="card" style="position: relative;">
                         <div class="card-header-bar">
-                            <span class="badge" style="background-color: #e0e7ff; color: #3730a3;">
-                                🧭 {{ trip.starting_city }}
+                            <span class="badge" style="background-color: #e0e7ff; color: #3730a3; font-weight: 600;">
+                                🧭 Origin: {{ trip.starting_city }}
                             </span>
-                            <small style="color: var(--text-light); font-weight: 600;">Trip #{{ trip.trip_id }}</small>
+                            <span class="badge {% if trip.total_stops > 0 %}badge-heritage{% else %}badge-default{% endif %}">
+                                📍 {{ trip.total_stops }} stop{% if trip.total_stops != 1 %}s{% endif %}
+                            </span>
                         </div>
                         <h3 style="margin-bottom: 0.35rem;">
                             <a href="{{ url_for('trip_detail', trip_id=trip.trip_id) }}" class="card-title">
@@ -37,7 +66,7 @@
                             </a>
                         </h3>
                         <div class="card-location">
-                            ⏱️ Target: <strong>{{ trip.planned_duration_days }} days</strong> &nbsp;|&nbsp; 📍 <strong>{{ trip.total_stops }} stop(s)</strong>
+                            ⏱️ Target Duration: <strong>{{ trip.planned_duration_days }} days</strong>
                         </div>
                         {% if trip.notes %}
                             <p class="card-desc" style="font-style: italic; color: var(--text-muted);">
@@ -48,19 +77,34 @@
                                 No special notes added.
                             </p>
                         {% endif %}
+
                         <div class="card-footer-actions">
-                            <a href="{{ url_for('trip_detail', trip_id=trip.trip_id) }}" class="btn btn-primary btn-sm">
-                                Manage Itinerary
-                            </a>
-                            <div style="display: flex; gap: 0.35rem;">
-                                <a href="{{ url_for('trip_edit', trip_id=trip.trip_id) }}" class="btn btn-secondary btn-sm" title="Edit Trip Details">
+                            {% if trip.total_stops == 0 %}
+                                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                    <a href="{{ url_for('trip_detail', trip_id=trip.trip_id) }}#addStopSection" class="btn btn-primary btn-sm">
+                                        📍 Add first destination
+                                    </a>
+                                    <a href="{{ url_for('destination_list') }}" class="btn btn-secondary btn-sm">
+                                        Explore Destinations
+                                    </a>
+                                </div>
+                            {% else %}
+                                <a href="{{ url_for('trip_detail', trip_id=trip.trip_id) }}" class="btn btn-primary btn-sm">
+                                    Manage Itinerary
+                                </a>
+                            {% endif %}
+                            <div style="display: flex; gap: 0.35rem; margin-left: auto;">
+                                <a href="{{ url_for('trip_edit', trip_id=trip.trip_id) }}" class="btn btn-secondary btn-sm" title="Edit Trip Details" aria-label="Edit Trip {{ trip.trip_name }}">
                                     ✏️
                                 </a>
                                 <button type="button"
                                         class="btn btn-danger btn-sm btn-delete-trigger"
+                                        title="Delete Trip Plan"
+                                        aria-label="Delete Trip {{ trip.trip_name }}"
                                         data-action="{{ url_for('trip_delete', trip_id=trip.trip_id) }}"
                                         data-name="{{ trip.trip_name }}"
-                                        data-warning="Deleting this trip plan will automatically remove all {{ trip.total_stops }} scheduled destination stops (ON DELETE CASCADE).">
+                                        data-title="Delete this trip plan?"
+                                        data-warning="{% if trip.total_stops > 0 %}This trip contains {{ trip.total_stops }} scheduled destination{% if trip.total_stops != 1 %}s{% endif %}. Deleting the plan will also remove these stops. This action cannot be undone.{% else %}This trip has no scheduled destinations. Deleting the trip plan cannot be undone.{% endif %}">
                                     🗑️
                                 </button>
                             </div>
@@ -71,8 +115,8 @@
         {% else %}
             <div style="background-color: var(--bg-surface); border: 1px dashed var(--border-light); border-radius: var(--radius-lg); padding: 2.5rem 1.5rem; text-align: center;">
                 <h3 style="color: var(--color-primary); margin-bottom: 0.5rem; font-size: 1.15rem;">No Trip Plans Created Yet</h3>
-                <p style="color: var(--text-muted); font-size: 0.92rem; margin: 0 auto;">
-                    Use the creation form to set up your first travel plan. You can then add destinations, sequence stops, and configure stay durations.
+                <p style="color: var(--text-muted); font-size: 0.92rem; margin: 0 auto; max-width: 480px; line-height: 1.5;">
+                    Use the creation form on the right to start your first travel plan. You can then add destinations, sequence stops, and configure stay durations.
                 </p>
             </div>
         {% endif %}
@@ -81,17 +125,20 @@
     <!-- Right Column: Compact Create Form -->
     <div id="createTripSection">
         <div class="detail-section trip-planner-form-panel">
-            <h2 class="section-heading" style="margin-bottom: 0.5rem;">✨ Create a New Trip Plan</h2>
-            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.25rem;">
-                Saved directly in MySQL <code>trip_plans</code>. Origins dynamically loaded from database budget records.
+            <h2 class="section-heading" style="margin-bottom: 0.5rem;">✨ Create a New Itinerary</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem; line-height: 1.5;">
+                Set up your travel plan with a starting hub. You will add and organize destinations after creating your itinerary.
             </p>
 
             <form method="POST" action="{{ url_for('trip_create') }}" class="needs-validation">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                 <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" for="trip_name">Trip Name *</label>
-                    <input type="text" id="trip_name" name="trip_name" class="form-control" required maxlength="150" placeholder="e.g. Rajasthan Heritage Tour">
+                    <label class="form-label" for="trip_name">Itinerary Name *</label>
+                    <input type="text" id="trip_name" name="trip_name" class="form-control" required maxlength="150" placeholder="e.g. Tamil Nadu Temple Trail">
+                    <small style="display: block; margin-top: 0.35rem; color: var(--text-muted); font-size: 0.82rem; line-height: 1.4;">
+                        Example: Tamil Nadu Temple Trail. You will add the destinations after creating your itinerary.
+                    </small>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
@@ -117,7 +164,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    💾 Create Trip Plan
+                    💾 Create Itinerary
                 </button>
             </form>
         </div>

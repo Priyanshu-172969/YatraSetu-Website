@@ -12,16 +12,25 @@
             {% if is_edit %}Edit Destination #{{ destination.destination_id }}{% else %}Add New Destination{% endif %}
         </h1>
         <p class="page-subtitle">
-            {% if is_edit %}Update core location metadata and descriptive travel details{% else %}Create a synchronized record across <code>destination_core</code> and <code>destination_details</code>{% endif %}
+            {% if is_edit %}Update core location metadata and descriptive travel details{% else %}Create a new destination record with comprehensive visitor details{% endif %}
         </p>
+    </div>
+</div>
+
+<!-- Clarification on newly added destination capabilities -->
+<div class="alert alert-info" style="max-width: 900px; margin-bottom: 1.5rem; line-height: 1.5;">
+    <div>
+        <strong style="display: block; margin-bottom: 0.2rem;">ℹ️ Destination Data Notice:</strong>
+        This form stores destination location metadata and visitor details directly in the local application database. Newly added destinations do not automatically receive curated photographs or budget estimates unless corresponding records exist in the local dataset.
     </div>
 </div>
 
 <form method="POST" class="needs-validation" style="max-width: 900px; margin-bottom: 2.5rem;">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
     <!-- Section 1: Core Geographical Information -->
     <div class="detail-section">
-        <h2 class="section-heading">1. Core Information (Table: <code>destination_core</code>)</h2>
+        <h2 class="section-heading">1. Core Destination Information</h2>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
             <div class="form-group" style="grid-column: span 2;">
@@ -58,7 +67,7 @@
 
     <!-- Section 2: Detailed Travel Information -->
     <div class="detail-section">
-        <h2 class="section-heading">2. Narrative & Travel Details (Table: <code>destination_details</code>)</h2>
+        <h2 class="section-heading">2. Narrative & Visitor Information</h2>
 
         <div class="form-group" style="margin-bottom: 1rem;">
             <label class="form-label" for="description">Comprehensive Description *</label>
@@ -104,14 +113,20 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
                 <label class="form-label" for="primary_official_source_url">Primary Official Portal URL *</label>
-                <input type="url" id="primary_official_source_url" name="primary_official_source_url" class="form-control" required maxlength="500"
+                <input type="text" id="primary_official_source_url" name="primary_official_source_url" class="form-control" required maxlength="500"
                        value="{{ destination.primary_official_source_url if destination else '' }}" placeholder="https://www.tamilnadutourism.tn.gov.in">
+                <small style="display: block; margin-top: 0.35rem; color: var(--text-muted); font-size: 0.82rem;">
+                    Must start with <code>https://</code> or <code>http://</code>
+                </small>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="supporting_source_urls">Supporting Source URL (Optional)</label>
-                <input type="url" id="supporting_source_urls" name="supporting_source_urls" class="form-control" maxlength="500"
-                       value="{{ destination.supporting_source_urls if destination and destination.supporting_source_urls else '' }}" placeholder="https://asi.nic.in">
+                <label class="form-label" for="supporting_source_urls">Supporting Source URLs (Optional)</label>
+                <input type="text" id="supporting_source_urls" name="supporting_source_urls" class="form-control" maxlength="500"
+                       value="{{ destination.supporting_source_urls if destination and destination.supporting_source_urls else '' }}" placeholder="https://asi.nic.in | https://whc.unesco.org">
+                <small style="display: block; margin-top: 0.35rem; color: var(--text-muted); font-size: 0.82rem;">
+                    Single URL or multiple URLs separated by <code>|</code> (e.g. <code>https://asi.nic.in | https://whc.unesco.org</code>)
+                </small>
             </div>
         </div>
     </div>

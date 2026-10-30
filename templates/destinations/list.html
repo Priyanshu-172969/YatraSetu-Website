@@ -8,15 +8,28 @@
         <h1 class="page-title">Destination Explorer</h1>
         <p class="page-subtitle">Discover monuments, natural wonders, and cultural sanctuaries across India</p>
     </div>
-    <a href="{{ url_for('destination_create') }}" class="btn btn-primary btn-sm">+ Add New Destination</a>
 </div>
 
-<!-- Dynamic Search & Filter Form -->
+<!-- Dynamic Search & Filter Form with Datalist Suggestions -->
 <div class="filter-panel">
     <form method="GET" action="{{ url_for('destination_list') }}" class="filter-form">
         <div class="form-group">
             <label class="form-label" for="searchInput">Search by Name</label>
-            <input type="text" id="searchInput" name="q" class="form-control" placeholder="e.g. Taj Mahal, Hampi, Qutb..." value="{{ search_query }}">
+            <input type="text"
+                   id="searchInput"
+                   name="q"
+                   class="form-control"
+                   placeholder="e.g. Taj Mahal, Hampi, Qutb..."
+                   value="{{ search_query }}"
+                   list="destinationSuggestions"
+                   autocomplete="off">
+            <datalist id="destinationSuggestions">
+                {% if place_names %}
+                    {% for name in place_names %}
+                        <option value="{{ name }}"></option>
+                    {% endfor %}
+                {% endif %}
+            </datalist>
         </div>
 
         <div class="form-group">
@@ -58,16 +71,20 @@
                 {% set img_meta = dest.destination_id | destination_image %}
                 <div class="card-media">
                     {% if img_meta %}
-                        <a href="{{ url_for('destination_detail', destination_id=dest.destination_id) }}">
+                        <a href="{{ url_for('destination_detail', destination_id=dest.destination_id) }}" aria-label="View {{ dest.place_name }}">
                             <img src="{{ url_for('static', filename=img_meta.path) }}" alt="{{ dest.place_name }}" loading="lazy">
                         </a>
                     {% else %}
-                        <div class="card-media-fallback">🏛️</div>
+                        <a href="{{ url_for('destination_detail', destination_id=dest.destination_id) }}" class="card-media-fallback" aria-label="View {{ dest.place_name }}">
+                            <span class="fallback-icon" aria-hidden="true">🏛️</span>
+                            <span class="fallback-place">{{ dest.place_name }}</span>
+                            <span class="fallback-tag">{{ dest.category }}</span>
+                        </a>
                     {% endif %}
                 </div>
                 <div class="card-header-bar">
-                    <span class="badge badge-default">{{ dest.category }}</span>
-                    <small style="color: var(--text-light); font-weight: 600;">ID #{{ dest.destination_id }}</small>
+                    <span class="badge {{ dest.category | category_badge }}">{{ dest.category }}</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">{{ dest.state_ut }}</span>
                 </div>
                 <h3 style="margin-bottom: 0.35rem;">
                     <a href="{{ url_for('destination_detail', destination_id=dest.destination_id) }}" class="card-title">
